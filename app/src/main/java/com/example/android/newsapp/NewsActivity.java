@@ -4,14 +4,18 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ButtonBarLayout;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -116,14 +120,22 @@ public class NewsActivity extends AppCompatActivity implements LoaderManager.Loa
         Uri baseUri = Uri.parse(GUARDIAN_API_REQUEST_URL);
         Uri.Builder uriBuilder = baseUri.buildUpon();
 
+        /* Get preferences */
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String minDate = sharedPrefs.getString(getString(R.string.settings_min_date_key), getString(R.string.settings_min_date_default_value));
+        String section = sharedPrefs.getString(getString(R.string.settings_select_section_key), getString(R.string.settings_select_section_default_value));
+
+
         /* API key */
         uriBuilder.appendQueryParameter("api-key", getResources().getString(R.string.guardian_api_key));
         /* Show article contributor */
         uriBuilder.appendQueryParameter("show-tags", "contributor");
         /* Show article thumbnail */
         uriBuilder.appendQueryParameter("show-fields", "thumbnail");
-        /* User search term */
-        uriBuilder.appendQueryParameter("q", query);
+        /* Minimum Date */
+        uriBuilder.appendQueryParameter("from-date", minDate);
+        /* Section Id */
+        uriBuilder.appendQueryParameter("section", section);
 
         Log.v(TAG, "Quering URL: " + uriBuilder.toString());
 
@@ -154,5 +166,22 @@ public class NewsActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(Loader<List<Story>> loader) {
         mAdapter.clear();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

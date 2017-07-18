@@ -225,8 +225,8 @@ public final class QueryUtils {
                     JSONObject tag;
                     for (int j = 0; j < tags.length(); j++){
                         tag = tags.getJSONObject(j);
-                        if (tag.has("firstName") || tag.has("lastName"))
-                            authors.add(tag.getString("firstName") + " " + tag.getString("lastName"));
+                        if (tag.has("webTitle"))
+                            authors.add(tag.getString("webTitle"));
                     }
                 }
 
